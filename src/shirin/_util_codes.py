@@ -3,7 +3,7 @@ import os
 from typing import List
 
 # import matplotlib.pyplot as plt
-# import numpy as np
+import numpy as np
 # from scipy.ndimage import map_coordinates, gaussian_filter
 
 def create_folder_path(out_folder_path):
@@ -25,9 +25,9 @@ def read_img(file_path):
     return img
 
 def save_img(img, file_path):
-    # image = Image.fromarray(img.astype('uint8'))  # Convert NumPy array to PIL image
-
-    # Save the image as a TIFF file
+    if isinstance(img, np.ndarray):
+        img = Image.fromarray(img)  # Convert NumPy array to PIL image
+    # Save the image to the path
     img.save(file_path)
 
 def delete_folder(folder_path):
@@ -68,12 +68,20 @@ def plot_control_grids(source_grid, target_grid, transformed_image_shape, source
 def get_test_folder():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     test_folder = os.path.join(current_dir, "test_folder")
+    print(test_folder)
     return test_folder
 
 def get_parent_folder():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     parent_dir = os.path.dirname(current_dir)
     return parent_dir
+
+def get_project_folder():
+    parent_dir = get_parent_folder()
+    project_dir = os.path.dirname(parent_dir)
+    project_dir = os.path.dirname(project_dir)
+    return project_dir
+    
 
 def test_io():
     test_folder = get_test_folder()
@@ -87,8 +95,8 @@ def test_io():
     delete_folder(test_folder)
 
 def test_image_io():
-    parent_dir = get_parent_folder()
-    img_folder = os.path.join(parent_dir, "data/2d_images")
+    project_dir = get_project_folder()
+    img_folder = os.path.join(project_dir, "data/2d_images")
     img_name = "ID_0000_Z_0142.tif"
     img_path = os.path.join(img_folder, img_name)
     img = read_img(img_path)
@@ -97,9 +105,20 @@ def test_image_io():
     test_folder = get_test_folder()
     create_folder_path(test_folder)
     img_out_path = os.path.join(test_folder, "test.tif")
+    # save original img
     save_img(img, img_out_path)
     img_out = read_img(img_out_path)
     assert img_out.size == (512, 512)
+
+    np_img = np.array(img)
+    img = np_img
+    # save numpy img
+    img_out_path2 = img_out_path + "_numpy.tif"
+    save_img(img, img_out_path2)
+    img_out_npy = read_img(img_out_path2)
+    assert img_out_npy.size == (512, 512)
+    assert img_out == img_out_npy
+
     # clean up
     delete_folder(test_folder)
 

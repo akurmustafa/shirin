@@ -1,0 +1,12 @@
+# Python files
+*.pyc
+
+# Ignore build bash scripts
+update_lib.sh
+
+# Ignore build directories
+dist/
+*.egg-info/
+
+# Ignore macOS system files
+.DS_Store
